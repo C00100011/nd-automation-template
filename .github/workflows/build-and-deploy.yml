@@ -1,0 +1,35 @@
+name: Build and Deploy to Home Assistant
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: home-server
+    environment: Production
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0.x'
+    - name: Appsettings Injection
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: '${{ vars.SOLUTION }}/appsettings.json'
+      env:
+        HomeAssistant.Host: ${{ vars.HASS_HOSTNAME }}
+        HomeAssistant.Port: ${{ vars.HASS_PORT }}
+        HomeAssistant.Token: ${{ secrets.HASS_API_TOKEN }}
+        HomeAssistant.Ssl: ${{ vars.HASS_SSL }}
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+  deploy:
+    runs-on: home-server
+    needs: build
+    environment: Production
+    steps:
+    - name: Copy to Home Assistant
+      run: cp -r ${{ vars.SOLUTION }}/bin/Debug/net7.0/* ${{ vars.HASS_PATH }}

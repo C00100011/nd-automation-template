@@ -1,0 +1,19 @@
+{
+    "name": "NetDaemon devcontainer",
+    "image": "mcr.microsoft.com/dotnet/sdk:8.0",
+    "postCreateCommand": "dotnet tool install NetDaemon.HassModel.CodeGen --tool-path ~/bin",
+    "postStartCommand": "cd NetDaemonAutomations && ~/bin/nd-codegen -host $HASS_HOST -token $HASS_TOKEN",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-dotnettools.vscode-dotnet-runtime",
+                "ms-dotnettools.csharp",
+                "ms-dotnettools.csdevkit",
+                "ms-dotnettools.vscodeintellicode-csharp",
+                "github.vscode-github-actions",
+                "GitHub.copilot",
+                "GitHub.copilot-chat"
+            ]
+        }
+    }
+}

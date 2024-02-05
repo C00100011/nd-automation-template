@@ -1,0 +1,25 @@
+name: Restart Add-on on Success
+
+on:
+  workflow_run:
+    workflows: ["Build and Deploy to Home Assistant"]
+    types:
+      - completed
+
+jobs:
+  restart:
+    runs-on: home-server
+    environment: Production
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Restart Addon
+      run: |
+        curl \
+          -H "Authorization: Bearer ${{ secrets.HASS_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{"addon": "${{ vars.HASS_ADDON_NAME }}"}' \
+          https://${{ vars.HASS_HOSTNAME }}/api/services/hassio/addon_restart
